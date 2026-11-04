@@ -1,0 +1,23 @@
+# Both halves of the pin in one run: the port replays the fixture table, and the
+# pinned Python gonogo regenerates that same table byte for byte.
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.18
+      - uses: astral-sh/setup-uv@v6
+      - name: Install the gonogo the fixtures pin
+        run: uv tool install --python 3.14 "gonogo-eval==$(node -p 'require("./package.json").gonogo.pinnedTo')"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: The Python side reproduces the committed table
+        run: GONOGO="$HOME/.local/bin/gonogo" npm run check-fixtures
