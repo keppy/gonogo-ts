@@ -35,7 +35,6 @@ export interface Decision {
 export function decideTrials(
   results: Trial[], target = 0.95, level = 0.95, minCoverage = MIN_USEFUL_COVERAGE, unit = "cases",
 ): Decision {
-  if (!(target > 0 && target < 1)) throw new RangeError(`target must be in (0, 1), got ${target}`);
   const base = { target, operatingPoint: null, calibrationError: NaN, neededN: null };
   const n = results.length;
   if (n === 0) {

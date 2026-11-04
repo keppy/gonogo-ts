@@ -80,4 +80,8 @@ test("an array of rows decides like the file it came from", () => {
   assertClose(decide(rows, options(["--target", "0.8"])), json("decide", "actions-with-confidence", "expected.json"));
   assert.throws(() => decide([{ passed: true }, { passed: true, action: "wait" }]),
     (e: unknown) => e instanceof GonogoRowError && e.index === 1 && e.line === 2 && e.message.startsWith("rows:2: "));
+  assert.throws(() => decide([{ passed: true }, null as never]),
+    (e: unknown) => e instanceof GonogoRowError && e.message === "rows:2: each line must be a JSON object");
+  assert.throws(() => decide([{ passed: true }], { target: 1 }),
+    (e: unknown) => e instanceof GonogoError && e.message === "target must be in (0, 1), got 1.0");
 });

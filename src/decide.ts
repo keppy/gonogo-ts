@@ -133,8 +133,14 @@ const confidenceOf = (r: Result) => r.confidence ?? 1.0;
 export function decide(input: string | Row[], opts: DecideOptions = {}): Record<string, unknown> {
   const { target = 0.95, level = 0.95, minCoverage = MIN_USEFUL_COVERAGE, groupRule = "none", task = "task" } = opts;
   const source = opts.source ?? "rows";
-  if (!(level > 0 && level < 1)) throw new GonogoError(`level must be in (0, 1), got ${level}`);
-  const rows = typeof input === "string" ? parseJsonl(input, source) : input.map((row, i) => ({ line: i + 1, row }));
+  if (!(target > 0 && target < 1)) throw new GonogoError(`target must be in (0, 1), got ${floatRepr(target)}`);
+  if (!(level > 0 && level < 1)) throw new GonogoError(`level must be in (0, 1), got ${floatRepr(level)}`);
+  const rows = typeof input === "string" ? parseJsonl(input, source) : input.map((row, i) => {
+    if (row === null || typeof row !== "object" || Array.isArray(row)) {
+      throw new GonogoRowError(source, i, i + 1, "each line must be a JSON object");
+    }
+    return { line: i + 1, row };
+  });
   const results = loadResults(rows, source);
   if (!(GROUP_RULES as readonly string[]).includes(groupRule)) {
     throw new GonogoError(`group_rule must be one of ('none', 'all'), got ${repr(groupRule)}`);
