@@ -1,0 +1,10 @@
+{"id":"check-0","group":"run-0","passed":true}
+{"id":"check-1","group":"run-0","passed":false}
+{"id":"check-0","group":"run-1","passed":true}
+{"id":"check-1","group":"run-1","passed":true}
+{"id":"check-0","group":"run-2","passed":true}
+{"id":"check-1","group":"run-2","passed":true}
+{"id":"check-0","group":"run-3","passed":true}
+{"id":"check-1","group":"run-3","passed":true}
+{"id":"check-0","group":"run-4","passed":true}
+{"id":"check-1","group":"run-4","passed":true}

@@ -1,0 +1,1 @@
+input.jsonl:1: confidence must be a number in [0, 1], got '0.5'

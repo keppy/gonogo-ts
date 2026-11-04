@@ -1,0 +1,1 @@
+{"cases":[{"id":"x","passed":true,"group":"g1"},{"id":"y","passed":false,"group":"g1"},{"id":"x","passed":true,"group":"g2"},{"id":"y","passed":true,"group":"g2"}]}

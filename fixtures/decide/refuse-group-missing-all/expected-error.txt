@@ -1,0 +1,1 @@
+group_rule is set but no case has a group; set Case.group or use group_rule='none'

@@ -1,0 +1,8 @@
+// comments and blank lines are skipped; default ids use the file line
+
+{"passed":true}
+{"id":0,"passed":true,"detail":7}
+{"id":7,"passed":false,"detail":null,"score":"0.25"}
+   {"id":"","passed":true,"score":true,"extra":{"k":[1,2]}}   
+{"id":"obj","passed":false,"detail":{"why":"it's","n":[1,true,null,1.5]}}
+{"id":"café","passed":true,"detail":"unicode é 😀"}

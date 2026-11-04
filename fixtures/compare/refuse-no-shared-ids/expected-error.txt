@@ -1,0 +1,1 @@
+the two reports share no case ids; nothing to compare

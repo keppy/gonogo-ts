@@ -1,0 +1,1 @@
+expected a Report or a Report.to_dict() payload with per-case results
