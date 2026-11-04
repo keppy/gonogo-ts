@@ -1,6 +1,6 @@
 # gonogo-eval (TypeScript)
 
-**Unpublished.** Not on npm yet; the name matches the Python package on PyPI.
+`npm install gonogo-eval`. The name matches the Python package on PyPI.
 
 A TypeScript port of the decision core of [gonogo](https://github.com/keppy/gonogo)
 (`gonogo-eval` on PyPI): the verdict on a measured pass rate, and the paired comparison of
