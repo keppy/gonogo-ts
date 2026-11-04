@@ -1,0 +1,36 @@
+{"id":"check-0","group":"run-0","passed":true,"score":1,"confidence":0.652,"detail":""}
+{"id":"check-1","group":"run-0","passed":true,"score":1,"confidence":0.724,"detail":""}
+{"id":"check-2","group":"run-0","passed":true,"score":1,"confidence":0.977,"detail":""}
+{"id":"check-0","group":"run-1","passed":true,"score":1,"confidence":0.902,"detail":""}
+{"id":"check-1","group":"run-1","passed":false,"score":0,"confidence":1,"detail":"agent error: RuntimeError: upstream timed out (5)","error":"RuntimeError: upstream timed out (5)"}
+{"id":"check-2","group":"run-1","passed":true,"score":1,"confidence":0.725,"detail":""}
+{"id":"check-0","group":"run-2","passed":true,"score":1,"confidence":0.939,"detail":""}
+{"id":"check-1","group":"run-2","passed":true,"score":1,"confidence":0.966,"detail":""}
+{"id":"check-2","group":"run-2","passed":true,"score":1,"confidence":0.834,"detail":""}
+{"id":"check-0","group":"run-3","passed":true,"score":1,"confidence":0.708,"detail":""}
+{"id":"check-1","group":"run-3","passed":true,"score":1,"confidence":0.958,"detail":""}
+{"id":"check-2","group":"run-3","passed":true,"score":1,"confidence":0.783,"detail":""}
+{"id":"check-0","group":"run-4","passed":true,"score":1,"confidence":0.793,"detail":""}
+{"id":"check-1","group":"run-4","passed":false,"score":0,"confidence":1,"detail":"agent error: RuntimeError: upstream timed out (14)","error":"RuntimeError: upstream timed out (14)"}
+{"id":"check-2","group":"run-4","passed":false,"score":0,"confidence":1,"detail":"agent error: RuntimeError: upstream timed out (15)","error":"RuntimeError: upstream timed out (15)"}
+{"id":"check-0","group":"run-5","passed":true,"score":1,"confidence":0.483,"detail":""}
+{"id":"check-1","group":"run-5","passed":false,"score":0,"confidence":0.471,"detail":""}
+{"id":"check-2","group":"run-5","passed":true,"score":1,"confidence":0.495,"detail":""}
+{"id":"check-0","group":"run-6","passed":true,"score":1,"confidence":0.968,"detail":""}
+{"id":"check-1","group":"run-6","passed":true,"score":1,"confidence":0.99,"detail":""}
+{"id":"check-2","group":"run-6","passed":true,"score":1,"confidence":0.779,"detail":""}
+{"id":"check-0","group":"run-7","passed":true,"score":1,"confidence":0.897,"detail":""}
+{"id":"check-1","group":"run-7","passed":true,"score":1,"confidence":0.616,"detail":""}
+{"id":"check-2","group":"run-7","passed":true,"score":1,"confidence":0.838,"detail":""}
+{"id":"check-0","group":"run-8","passed":true,"score":1,"confidence":0.637,"detail":""}
+{"id":"check-1","group":"run-8","passed":true,"score":1,"confidence":0.908,"detail":""}
+{"id":"check-2","group":"run-8","passed":true,"score":1,"confidence":0.685,"detail":""}
+{"id":"check-0","group":"run-9","passed":true,"score":1,"confidence":0.835,"detail":""}
+{"id":"check-1","group":"run-9","passed":true,"score":1,"confidence":0.941,"detail":""}
+{"id":"check-2","group":"run-9","passed":true,"score":1,"confidence":0.933,"detail":""}
+{"id":"check-0","group":"run-10","passed":true,"score":1,"confidence":0.748,"detail":""}
+{"id":"check-1","group":"run-10","passed":true,"score":1,"confidence":0.75,"detail":""}
+{"id":"check-2","group":"run-10","passed":true,"score":1,"confidence":0.658,"detail":""}
+{"id":"check-0","group":"run-11","passed":true,"score":1,"confidence":0.614,"detail":""}
+{"id":"check-1","group":"run-11","passed":true,"score":1,"confidence":0.843,"detail":""}
+{"id":"check-2","group":"run-11","passed":true,"score":1,"confidence":0.686,"detail":""}

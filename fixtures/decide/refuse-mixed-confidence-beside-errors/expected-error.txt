@@ -1,0 +1,1 @@
+mixed missing and present confidence; supply confidence for every answered case or none

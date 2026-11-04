@@ -1,0 +1,36 @@
+{"id":"check-0","group":"run-0","passed":true,"confidence":0.652}
+{"id":"check-1","group":"run-0","passed":true,"confidence":0.724}
+{"id":"check-2","group":"run-0","passed":true,"confidence":0.977}
+{"id":"check-0","group":"run-1","passed":true,"confidence":0.902}
+{"id":"check-1","group":"run-1","passed":false,"error":"RuntimeError: upstream timed out (5)"}
+{"id":"check-2","group":"run-1","passed":true,"confidence":0.725}
+{"id":"check-0","group":"run-2","passed":true,"confidence":0.939}
+{"id":"check-1","group":"run-2","passed":true,"confidence":0.966}
+{"id":"check-2","group":"run-2","passed":true,"confidence":0.834}
+{"id":"check-0","group":"run-3","passed":true,"confidence":0.708}
+{"id":"check-1","group":"run-3","passed":true,"confidence":0.958}
+{"id":"check-2","group":"run-3","passed":true,"confidence":0.783}
+{"id":"check-0","group":"run-4","passed":true,"confidence":0.793}
+{"id":"check-1","group":"run-4","passed":false,"error":"RuntimeError: upstream timed out (14)"}
+{"id":"check-2","group":"run-4","passed":false,"error":"RuntimeError: upstream timed out (15)"}
+{"id":"check-0","group":"run-5","passed":true,"confidence":0.483}
+{"id":"check-1","group":"run-5","passed":false,"confidence":0.471}
+{"id":"check-2","group":"run-5","passed":true,"confidence":0.495}
+{"id":"check-0","group":"run-6","passed":true,"confidence":0.968}
+{"id":"check-1","group":"run-6","passed":true,"confidence":0.99}
+{"id":"check-2","group":"run-6","passed":true,"confidence":0.779}
+{"id":"check-0","group":"run-7","passed":true,"confidence":0.897}
+{"id":"check-1","group":"run-7","passed":true,"confidence":0.616}
+{"id":"check-2","group":"run-7","passed":true,"confidence":0.838}
+{"id":"check-0","group":"run-8","passed":true,"confidence":0.637}
+{"id":"check-1","group":"run-8","passed":true,"confidence":0.908}
+{"id":"check-2","group":"run-8","passed":true,"confidence":0.685}
+{"id":"check-0","group":"run-9","passed":true,"confidence":0.835}
+{"id":"check-1","group":"run-9","passed":true,"confidence":0.941}
+{"id":"check-2","group":"run-9","passed":true,"confidence":0.933}
+{"id":"check-0","group":"run-10","passed":true,"confidence":0.748}
+{"id":"check-1","group":"run-10","passed":true,"confidence":0.75}
+{"id":"check-2","group":"run-10","passed":true,"confidence":0.658}
+{"id":"check-0","group":"run-11","passed":true,"confidence":0.614}
+{"id":"check-1","group":"run-11","passed":true,"confidence":0.843}
+{"id":"check-2","group":"run-11","passed":true,"confidence":0.686}

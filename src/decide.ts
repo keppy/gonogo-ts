@@ -3,10 +3,12 @@
 
 import { cmpStr, floatRepr, repr, str, toFloat, truthy } from "./py.ts";
 import type { Trial } from "./stats.ts";
-import { decideTrials, MIN_USEFUL_COVERAGE, type Decision } from "./verdict.ts";
+import { decideTrials, MIN_USEFUL_COVERAGE, VERDICTS, type Decision } from "./verdict.ts";
 
 const ANSWER = "answer";
 const ABSTAIN = "abstain";
+/** The action a report writes for a case that errored: neither acted nor held back. */
+const ERROR = "error";
 export const GROUP_RULES = ["none", "all"] as const;
 export type GroupRule = (typeof GROUP_RULES)[number];
 
@@ -46,6 +48,7 @@ interface Result {
   passed: boolean;
   score: number;
   detail: string;
+  error: string | null;
 }
 
 type Row = Record<string, unknown>;
@@ -93,7 +96,20 @@ function loadResults(rows: { line: number; row: Row }[], source: string): Result
       throw refuse(`confidence must be a number in [0, 1], got ${repr(rawConfidence)}`);
     }
     let confidence = rawConfidence;
-    if (expectedAction !== ANSWER) {
+    let error = row.error ?? null;
+    if (error !== null) {
+      if (typeof error !== "string" || !error) throw refuse(`error must be a non-empty string, got ${repr(error)}`);
+      if ("action" in row && action !== ERROR) {
+        throw refuse(`error is set, but action is ${repr(action)}; an errored case `
+          + `took no action (leave action out, or write ${repr(ERROR)})`);
+      }
+    } else if (action === ERROR) {
+      error = ERROR;
+    }
+    if (error !== null) {
+      if (passed) throw refuse("an errored case cannot pass");
+      action = ANSWER; // what evaluate's crash records; the error is what marks it
+    } else if (expectedAction !== ANSWER) {
       const expect = action === expectedAction;
       if (passed !== expect) {
         throw refuse(`passed is ${passed}, but action ${repr(action)} against `
@@ -120,7 +136,8 @@ function loadResults(rows: { line: number; row: Row }[], source: string): Result
       id,
       group: group === null ? null : str(group),
       expectedAction, action, confidence, passed, score,
-      detail: str("detail" in row ? row.detail : ""),
+      detail: str("detail" in row ? row.detail : error !== null ? `agent error: ${error}` : ""),
+      error: error as string | null,
     };
   });
   if (results.length === 0) throw new GonogoError(`${source}: no results found`);
@@ -146,26 +163,33 @@ export function decide(input: string | Row[], opts: DecideOptions = {}): Record<
     throw new GonogoError(`group_rule must be one of ('none', 'all'), got ${repr(groupRule)}`);
   }
 
-  // A plain abstention on an answer case carries a synthesized 0.0, so it is
-  // not the agent's own confidence and sits out the mixed-confidence check.
-  const own = results.filter((r) => !(r.action === ABSTAIN && r.expectedAction === ANSWER));
+  // A plain abstention on an answer case carries a synthesized 0.0, and an errored
+  // case may carry none, so neither is the agent's own confidence: both sit out the check.
+  const own = results.filter((r) => r.error === null && !(r.action === ABSTAIN && r.expectedAction === ANSWER));
   if (own.some((r) => r.confidence !== null) && own.some((r) => r.confidence === null)) {
     throw new GonogoError("mixed missing and present confidence; supply confidence for every answered case or none");
   }
 
-  let decision: Decision;
-  let nGroups: number | null = null;
-  let nGroupsPassed: number | null = null;
-  if (groupRule === "none") {
-    decision = decideTrials(results.map((r): Trial => [confidenceOf(r), r.passed]), target, level, minCoverage);
-  } else {
-    const groups = groupResults(results);
-    const trials = [...groups.values()].map((rs): Trial => [
-      Math.min(...rs.map(confidenceOf)), rs.every((r) => r.passed)]);
-    decision = decideTrials(trials, target, level, minCoverage, "groups");
-    nGroups = groups.size;
-    nGroupsPassed = trials.filter(([, p]) => p).length;
+  const groups = groupRule === "none" ? null : groupResults(results);
+  const trials = groups === null
+    ? results.map((r): Trial => [confidenceOf(r), r.passed])
+    : [...groups.values()].map((rs): Trial => [Math.min(...rs.map(confidenceOf)), rs.every((r) => r.passed)]);
+  let decision = decideTrials(trials, target, level, minCoverage, groups === null ? "cases" : "groups");
+  const errored = results.filter((r) => r.error !== null).length;
+  if (errored === results.length) {
+    // A pass rate of zero here is the harness breaking, not the agent failing.
+    decision = {
+      verdict: VERDICTS.INSUFFICIENT_EVIDENCE,
+      reason: `every case errored (${errored} of ${errored}), so the run measured nothing `
+        + "about the agent; fix what crashed and run it again",
+      passRate: decision.passRate, target, operatingPoint: null, calibrationError: NaN, neededN: null, notes: [],
+    };
+  } else if (errored) {
+    decision.notes.push(`${errored} of ${results.length} cases errored and count as failures; `
+      + "read their detail before reading the pass rate as the agent's.");
   }
+  const nGroups = groups === null ? null : groups.size;
+  const nGroupsPassed = groups === null ? null : trials.filter(([, p]) => p).length;
   return toDict(task, results, decision, nGroups, nGroupsPassed, { ...(opts.source === undefined ? {} : { source }), group_rule: groupRule });
 }
 
@@ -215,22 +239,28 @@ function toDict(
     })),
   };
   const usesActions = results.some((r) => r.expectedAction !== ANSWER || (r.action !== ANSWER && r.action !== ABSTAIN));
+  const cases = out.cases as Record<string, unknown>[];
   if (usesActions) { // absent otherwise, so a plain run's payload is unchanged
     out.actions = actions(results);
-    (out.cases as Record<string, unknown>[]).forEach((entry, i) => {
+    cases.forEach((entry, i) => {
       entry.expected_action = results[i].expectedAction;
-      entry.action = results[i].action;
+      entry.action = taken(results[i]);
     });
   }
+  cases.forEach((entry, i) => { // only on errored cases, so other payloads are unchanged
+    if (results[i].error !== null) entry.error = results[i].error;
+  });
   return out;
 }
+
+const taken = (r: Result) => (r.error !== null ? ERROR : r.action);
 
 /** Expected x taken action counts, with the two named mistakes. */
 function actions(results: Result[]) {
   const counts = new Map<string, { expected: string; taken: string; n: number }>();
   for (const r of results) {
-    const key = JSON.stringify([r.expectedAction, r.action]);
-    const row = counts.get(key) ?? { expected: r.expectedAction, taken: r.action, n: 0 };
+    const key = JSON.stringify([r.expectedAction, taken(r)]);
+    const row = counts.get(key) ?? { expected: r.expectedAction, taken: taken(r), n: 0 };
     row.n += 1;
     counts.set(key, row);
   }
@@ -245,9 +275,8 @@ function actions(results: Result[]) {
     matrix: rows,
     acted_when_should_hold_back: rows.filter((r) => r.expected !== ANSWER && r.taken === ANSWER)
       .reduce((s, r) => s + r.n, 0),
-    // Python counts an errored case as taken "error" and excludes it here, so a
-    // row whose action is literally "error" is excluded too.
-    held_back_when_should_act: rows.filter((r) => r.expected === ANSWER && r.taken !== ANSWER && r.taken !== "error")
+    // An errored case neither acted nor held back.
+    held_back_when_should_act: rows.filter((r) => r.expected === ANSWER && r.taken !== ANSWER && r.taken !== ERROR)
       .reduce((s, r) => s + r.n, 0),
   };
 }

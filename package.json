@@ -1,6 +1,6 @@
 {
   "name": "gonogo-eval",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "TypeScript port of gonogo's decision core: decide and compare, pinned to the Python implementation by a fixture table.",
   "license": "MIT",
   "type": "module",
@@ -17,7 +17,7 @@
     "node": ">=22.18"
   },
   "gonogo": {
-    "pinnedTo": "0.4.4"
+    "pinnedTo": "0.4.5"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

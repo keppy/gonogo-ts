@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { compare, decide, GonogoError, GonogoRowError, type DecideOptions } from "../src/index.ts";
 import { tableDigest } from "../scripts/table.mjs";
+import { decideCases } from "../scripts/inputs.mjs";
 import { assertClose } from "./close.ts";
 
 const ROOT = join(import.meta.dirname, "..", "fixtures");
@@ -84,4 +85,14 @@ test("an array of rows decides like the file it came from", () => {
     (e: unknown) => e instanceof GonogoRowError && e.message === "rows:2: each line must be a JSON object");
   assert.throws(() => decide([{ passed: true }], { target: 1 }),
     (e: unknown) => e instanceof GonogoError && e.message === "target must be in (0, 1), got 1.0");
+});
+
+test("this port's own decide output, fed back as rows, decides as Python's round trip did", () => {
+  const trips = decideCases.filter((c: { casesOf?: string }) => c.casesOf !== undefined);
+  assert.ok(trips.length > 0);
+  for (const { name, flags, casesOf } of trips) {
+    const first = decide(read("decide", casesOf, "input.jsonl"), options(json("decide", casesOf, "flags.json")));
+    const back = decide(first.cases as Record<string, unknown>[], { ...options(flags), source: "input.jsonl" });
+    assertClose(back, json("decide", name, "expected.json"));
+  }
 });

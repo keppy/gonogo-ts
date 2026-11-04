@@ -1,0 +1,11 @@
+{"id":"c-1","passed":true}
+{"id":"c-2","passed":true}
+{"id":"c-3","passed":false}
+{"id":"c-4","passed":true}
+{"id":"c-5","passed":true}
+{"id":"c-6","passed":true}
+{"id":"c-7","passed":true}
+{"id":"c-8","passed":true}
+{"id":"e-1","passed":false,"error":"boom","confidence":0.2}
+{"id":"e-2","passed":false,"action":"error","confidence":0.6}
+{"id":"e-3","passed":false,"error":"boom"}

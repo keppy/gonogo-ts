@@ -1,0 +1,12 @@
+{"id":"k0","group":"run-0","passed":false,"error":"boom"}
+{"id":"k1","group":"run-0","passed":false,"error":"boom"}
+{"id":"k2","group":"run-0","passed":false,"error":"boom"}
+{"id":"k0","group":"run-1","passed":false,"error":"boom"}
+{"id":"k1","group":"run-1","passed":false,"error":"boom"}
+{"id":"k2","group":"run-1","passed":false,"error":"boom"}
+{"id":"k0","group":"run-2","passed":false,"error":"boom"}
+{"id":"k1","group":"run-2","passed":false,"error":"boom"}
+{"id":"k2","group":"run-2","passed":false,"error":"boom"}
+{"id":"k0","group":"run-3","passed":false,"error":"boom"}
+{"id":"k1","group":"run-3","passed":false,"error":"boom"}
+{"id":"k2","group":"run-3","passed":false,"error":"boom"}

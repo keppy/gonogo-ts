@@ -1,0 +1,33 @@
+{"id":"m-1","group":null,"passed":false,"score":0,"confidence":1,"detail":"agent error: RuntimeError: upstream timed out (1)","expected_action":"answer","action":"error","error":"RuntimeError: upstream timed out (1)"}
+{"id":"m-2","group":null,"passed":true,"score":1,"confidence":0.653,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-3","group":null,"passed":false,"score":0,"confidence":0.535,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-4","group":null,"passed":true,"score":1,"confidence":0.925,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-5","group":null,"passed":true,"score":1,"confidence":0.535,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-6","group":null,"passed":true,"score":1,"confidence":0.697,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-7","group":null,"passed":false,"score":0,"confidence":0.653,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-8","group":null,"passed":true,"score":1,"confidence":0.507,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-9","group":null,"passed":true,"score":1,"confidence":0.796,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-10","group":null,"passed":true,"score":1,"confidence":0.528,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-11","group":null,"passed":true,"score":1,"confidence":0.88,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-12","group":null,"passed":true,"score":1,"confidence":0.716,"detail":"","expected_action":"answer","action":"answer"}
+{"id":"m-13","group":null,"passed":false,"score":0,"confidence":0,"detail":"","expected_action":"answer","action":"abstain"}
+{"id":"m-14","group":null,"passed":false,"score":0,"confidence":0,"detail":"","expected_action":"answer","action":"abstain"}
+{"id":"m-15","group":null,"passed":false,"score":0,"confidence":0.456,"detail":"","expected_action":"answer","action":"wait"}
+{"id":"m-16","group":null,"passed":false,"score":0,"confidence":0.546,"detail":"","expected_action":"answer","action":"react"}
+{"id":"m-17","group":null,"passed":true,"score":1,"confidence":0.946,"detail":"","expected_action":"react","action":"react"}
+{"id":"m-18","group":null,"passed":true,"score":1,"confidence":0.866,"detail":"","expected_action":"react","action":"react"}
+{"id":"m-19","group":null,"passed":false,"score":0,"confidence":0.679,"detail":"","expected_action":"react","action":"answer"}
+{"id":"m-20","group":null,"passed":false,"score":0,"confidence":0.886,"detail":"","expected_action":"react","action":"quiet"}
+{"id":"m-21","group":null,"passed":true,"score":1,"confidence":0.926,"detail":"","expected_action":"quiet","action":"quiet"}
+{"id":"m-22","group":null,"passed":true,"score":1,"confidence":0.586,"detail":"","expected_action":"quiet","action":"quiet"}
+{"id":"m-23","group":null,"passed":true,"score":1,"confidence":0.935,"detail":"","expected_action":"quiet","action":"quiet"}
+{"id":"m-24","group":null,"passed":false,"score":0,"confidence":0.339,"detail":"","expected_action":"quiet","action":"answer"}
+{"id":"m-25","group":null,"passed":true,"score":1,"confidence":0.849,"detail":"","expected_action":"wait","action":"wait"}
+{"id":"m-26","group":null,"passed":true,"score":1,"confidence":0.928,"detail":"","expected_action":"wait","action":"wait"}
+{"id":"m-27","group":null,"passed":false,"score":0,"confidence":0.302,"detail":"","expected_action":"wait","action":"answer"}
+{"id":"m-28","group":null,"passed":false,"score":0,"confidence":0.804,"detail":"","expected_action":"wait","action":"react"}
+{"id":"m-29","group":null,"passed":true,"score":1,"confidence":0.349,"detail":"","expected_action":"abstain","action":"abstain"}
+{"id":"m-30","group":null,"passed":false,"score":0,"confidence":0.648,"detail":"","expected_action":"abstain","action":"answer"}
+{"id":"x-wait","group":null,"passed":false,"score":0,"confidence":1,"detail":"agent error: RuntimeError: tool unavailable","expected_action":"wait","action":"error","error":"RuntimeError: tool unavailable"}
+{"id":"x-react","group":null,"passed":false,"score":0,"confidence":0.4,"detail":"agent error: error","expected_action":"react","action":"error","error":"error"}
+{"id":"x-both","group":null,"passed":false,"score":0,"confidence":1,"detail":"kept","expected_action":"answer","action":"error","error":"ValueError: bad input"}

@@ -56,6 +56,16 @@ function grouped(seed, groups, perGroup, { failGroups = [], confidence = false }
   }));
 }
 
+/** Rows with the cases at `at` (0-based) turned into errored ones, as a harness writes a crash. */
+function withErrors(rows, at, { keepConfidence = false } = {}) {
+  return rows.map((row, i) => {
+    if (!at.includes(i)) return row;
+    const { confidence, ...rest } = row;
+    return { ...rest, passed: false, error: `RuntimeError: upstream timed out (${i + 1})`,
+      ...(keepConfidence && confidence !== undefined ? { confidence } : {}) };
+  });
+}
+
 // Top 25 of 40 at confidence >= 0.625, all passing: the review threshold lands
 // on 0.625 and its coverage on 0.625, both exact ties for Python's rounding.
 const tieRows = range(40).map((i) => i < 25
@@ -93,6 +103,47 @@ export const decideCases = [
   { name: "actions-without-confidence", flags: ["--target", "0.8"], text: jsonl(actionRows(31, false)) },
   { name: "every-row-action-error", flags: [],
     text: jsonl(range(12).map((i) => ({ id: `e-${i + 1}`, passed: false, action: "error", detail: "agent error: Timeout" }))) },
+
+  // Errored cases: an `error` key, or `action: "error"`; neither can pass.
+  { name: "errors-partial-no-confidence", flags: ["--target", "0.85"],
+    text: jsonl(withErrors(range(30).map((i) => ({ id: `c-${i + 1}`, passed: i % 11 !== 5 })), [3, 8, 26])) },
+  { name: "errors-partial-with-confidence", flags: ["--target", "0.85"],
+    text: jsonl(withErrors(calibrated(101, 60, { offset: 0.35 }), [2, 17, 40, 41])) },
+  { name: "errors-partial-needed-n", flags: [],
+    text: jsonl(withErrors(range(40).map((i) => ({ id: `c-${i + 1}`, passed: true })), [17])) },
+  { name: "errors-partial-review", flags: ["--target", "0.85"],
+    text: jsonl(withErrors(range(40).map((i) => ({ id: `c-${i + 1}`, passed: i < 30, confidence: round3(1 - i / 50) })),
+      [33, 37], { keepConfidence: true })) },
+  { name: "errors-own-confidence", flags: ["--target", "0.85"],
+    text: jsonl(withErrors(calibrated(103, 40, { offset: 0.35 }), [1, 5, 9, 30], { keepConfidence: true })) },
+  { name: "errors-only-errored-confidence", flags: [], text: jsonl([
+    ...range(8).map((i) => ({ id: `c-${i + 1}`, passed: i !== 2 })),
+    { id: "e-1", passed: false, error: "boom", confidence: 0.2 },
+    { id: "e-2", passed: false, action: "error", confidence: 0.6 },
+    { id: "e-3", passed: false, error: "boom" }]) },
+  { name: "errors-grouped", flags: ["--group-rule", "all", "--target", "0.75"],
+    text: jsonl(withErrors(grouped(105, 12, 3, { failGroups: [5], confidence: true }), [4, 13, 14])) },
+  { name: "errors-with-actions", flags: ["--target", "0.8"], text: jsonl([
+    ...withErrors(actionRows(107, true), [0]),
+    { id: "x-wait", expected_action: "wait", passed: false, error: "RuntimeError: tool unavailable" },
+    { id: "x-react", expected_action: "react", passed: false, action: "error", confidence: 0.4 },
+    { id: "x-both", passed: false, action: "error", error: "ValueError: bad input", detail: "kept" }]) },
+  { name: "errors-all-error-key", flags: ["--target", "0.85"],
+    text: jsonl(range(30).map((i) => ({ id: `c-${i + 1}`, passed: false, error: "harness down" }))) },
+  { name: "errors-all-action-error-with-confidence", flags: [],
+    text: jsonl(range(6).map((i) => ({ id: `c-${i + 1}`, passed: false, action: "error", confidence: round3(0.1 + i / 10) }))) },
+  { name: "errors-all-grouped", flags: ["--group-rule", "all"],
+    text: jsonl(range(4).flatMap((g) => range(3).map((j) => ({ id: `k${j}`, group: `run-${g}`, passed: false, error: "boom" })))) },
+  { name: "errors-all-one-row", flags: [], text: jsonl([{ id: "only", passed: false, error: "boom" }]) },
+  { name: "errors-null-is-absent", flags: [], text: jsonl([
+    { id: "a", passed: true, error: null }, { id: "b", passed: false, error: null, action: "wait" },
+    ...range(10).map((i) => ({ id: `c-${i + 1}`, passed: i !== 4 }))]) },
+  // A decide output's cases fed back as rows: `casesOf` names the fixture whose expected.json supplies them.
+  { name: "errors-round-trip-partial", flags: ["--target", "0.85"], casesOf: "errors-partial-with-confidence" },
+  { name: "errors-round-trip-actions", flags: ["--target", "0.8"], casesOf: "errors-with-actions" },
+  { name: "errors-round-trip-all", flags: ["--target", "0.85"], casesOf: "errors-all-error-key" },
+  { name: "errors-round-trip-grouped", flags: ["--group-rule", "all", "--target", "0.75"], casesOf: "errors-grouped" },
+
   { name: "grouped-rule-none", flags: ["--group-rule", "none"], text: jsonl(grouped(41, 10, 3, { failGroups: [2] })) },
   { name: "grouped-rule-all", flags: ["--group-rule", "all"], text: jsonl(grouped(41, 10, 3, { failGroups: [2] })) },
   { name: "grouped-rule-all-confidence", flags: ["--group-rule", "all", "--target", "0.75"],
@@ -136,6 +187,20 @@ export const decideCases = [
   { name: "refuse-score-string", flags: [], text: jsonl([{ passed: true, score: "abc" }]) },
   { name: "refuse-group-missing-some", flags: ["--group-rule", "all"],
     text: jsonl([{ id: "a", group: "g", passed: true }, ...range(4).map((i) => ({ id: `u${i}`, passed: true }))]) },
+  { name: "refuse-error-passing", flags: [], text: jsonl([{ id: "ok", passed: true }, { passed: true, error: "boom" }]) },
+  { name: "refuse-action-error-passing", flags: [], text: jsonl([{ id: "ok", passed: true }, { passed: true, action: "error" }]) },
+  { name: "refuse-error-with-action-wait", flags: [],
+    text: jsonl([{ id: "ok", passed: true }, { id: "ok2", passed: true }, { passed: false, error: "boom", action: "wait" }]) },
+  { name: "refuse-error-with-action-answer", flags: [], text: jsonl([{ passed: false, error: "boom", action: "answer" }]) },
+  { name: "refuse-error-with-action-abstain", flags: [], text: jsonl([{ passed: false, error: "it's down", action: "abstain" }]) },
+  { name: "refuse-error-empty", flags: [], text: jsonl([{ id: "ok", passed: true }, { passed: false, error: "" }]) },
+  { name: "refuse-error-number", flags: [], text: jsonl([{ passed: false, error: 3 }]) },
+  { name: "refuse-error-false", flags: [], text: jsonl([{ passed: false, error: false }]) },
+  { name: "refuse-error-object", flags: [], text: jsonl([{ passed: false, error: { type: "Timeout", n: [1, 2.5] } }]) },
+  { name: "refuse-error-passing-confidence-out-of-range", flags: [], text: jsonl([{ passed: true, error: "boom", confidence: 1.5 }]) },
+  { name: "refuse-error-confidence-out-of-range", flags: [], text: jsonl([{ passed: false, error: "boom", confidence: 1.5 }]) },
+  { name: "refuse-mixed-confidence-beside-errors", flags: [], text: jsonl([
+    { id: "a", passed: true, confidence: 0.9 }, { id: "b", passed: false, error: "boom" }, { id: "e", passed: true }]) },
   { name: "refuse-group-missing-all", flags: ["--group-rule", "all"], text: jsonl([{ id: "a", passed: true }]) },
 ];
 
@@ -186,6 +251,11 @@ export const compareCases = [
     b: { json: payload([["x", true, "g1"], ["y", true, "g1"], ["x", true, "g2"], ["y", true, "g2"]]) } },
   { name: "refuse-ungrouped-decide-of-grouped-rows", flags: [],
     a: { rows: grouped(93, 5, 2, { failGroups: [0] }) }, b: { rows: grouped(93, 5, 2, {}) } },
+
+  { name: "errored-side", flags: [],
+    a: { rows: withErrors(coin(111, 60, 0.75), [4, 9, 33, 50]) }, b: { rows: coin(112, 60, 0.85) } },
+  { name: "all-errored-side", flags: [],
+    a: { rows: range(40).map((i) => ({ id: `c-${i}`, passed: false, error: "harness down" })) }, b: { rows: coin(113, 40, 0.8) } },
 
   { name: "refuse-not-a-report", flags: [], a: { json: {} }, b: { json: {} } },
   { name: "refuse-top-level-list", flags: [], a: { json: [] }, b: { json: payload([["a", true]]) } },

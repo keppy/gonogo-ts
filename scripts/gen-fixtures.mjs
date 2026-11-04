@@ -32,7 +32,11 @@ rmSync(out, { recursive: true, force: true });
 for (const c of decideCases) {
   const dir = join(out, "decide", c.name);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(join(dir, "input.jsonl"), c.text);
+  // A round trip reads the cases Python wrote for an earlier fixture, so its source must come first.
+  const text = c.casesOf === undefined ? c.text
+    : JSON.parse(readFileSync(join(out, "decide", c.casesOf, "expected.json"), "utf8")).cases
+      .map((r) => JSON.stringify(r)).join("\n") + "\n";
+  writeFileSync(join(dir, "input.jsonl"), text);
   writeFileSync(join(dir, "flags.json"), JSON.stringify(c.flags) + "\n");
   record(dir, run(dir, ["decide", "input.jsonl", ...c.flags, "--json"]));
 }
