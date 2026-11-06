@@ -3,7 +3,7 @@ import json
 import math
 
 from gonogo.compare import _mcnemar
-from gonogo.stats import required_n, wilson, z_for
+from gonogo.stats import fmt_cut, fmt_share, required_n, wilson, z_for
 
 
 def w(s, n, level):
@@ -23,4 +23,9 @@ print(json.dumps({
     "erfc": [[x, math.erfc(x)] for x in [0.0, 0.1, 0.49, 0.5, 1.0, 1.99, 2.0, 2.5, 4.0, 7.5, 15.0, 26.0]],
     "format": [[x, d, format(x, f".{d}f"), format(x, f".{d}%")] for x, d in
                [(0.125, 2), (0.625, 2), (0.375, 0), (0.005, 0), (0.995, 1), (0.15000000000000002, 2), (2.5, 0), (1e-9, 3)]],
+    # gonogo 0.4.6: cut points and shares printed so they reproduce themselves
+    "fmt_cut": [[x, fmt_cut(x)] for x in
+                [0.625, 0.231, 0.8, 0.5, 0.15, 0.150375, 0.30000000000000004, 0.0, 1.0, 0.12345, 0.99995, 0.1864, 2 / 3]],
+    "fmt_share": [[x, fmt_share(x)] for x in
+                  [0.625, 0.29, 2 / 3, 1.0, 0.25, 0.99999, 0.0, 0.7826086956521739, 0.975, 0.0005, 0.9995]],
 }))

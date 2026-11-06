@@ -166,7 +166,8 @@ export function decide(input: string | Row[], opts: DecideOptions = {}): Record<
   // A plain abstention on an answer case carries a synthesized 0.0, and an errored
   // case may carry none, so neither is the agent's own confidence: both sit out the check.
   const own = results.filter((r) => r.error === null && !(r.action === ABSTAIN && r.expectedAction === ANSWER));
-  if (own.some((r) => r.confidence !== null) && own.some((r) => r.confidence === null)) {
+  const supplied = own.some((r) => r.confidence !== null);
+  if (supplied && own.some((r) => r.confidence === null)) {
     throw new GonogoError("mixed missing and present confidence; supply confidence for every answered case or none");
   }
 
@@ -174,7 +175,7 @@ export function decide(input: string | Row[], opts: DecideOptions = {}): Record<
   const trials = groups === null
     ? results.map((r): Trial => [confidenceOf(r), r.passed])
     : [...groups.values()].map((rs): Trial => [Math.min(...rs.map(confidenceOf)), rs.every((r) => r.passed)]);
-  let decision = decideTrials(trials, target, level, minCoverage, groups === null ? "cases" : "groups");
+  let decision = decideTrials(trials, target, level, minCoverage, groups === null ? "cases" : "groups", supplied);
   const errored = results.filter((r) => r.error !== null).length;
   if (errored === results.length) {
     // A pass rate of zero here is the harness breaking, not the agent failing.

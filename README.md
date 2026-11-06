@@ -8,7 +8,7 @@ two runs. Zero runtime dependencies. ESM only, Node 22.18 or later.
 
 It is pinned to the Python implementation by a fixture table: `fixtures/` holds input files,
 the flags they were run with, and what the installed Python CLI printed. The test suite replays
-every one. `fixtures/manifest.json` records the gonogo version (`gonogo-eval 0.4.5`) and a
+every one. `fixtures/manifest.json` records the gonogo version (`gonogo-eval 0.4.6`) and a
 sha256 of the table; `package.json` records the same version under `gonogo.pinnedTo`.
 
 ## Use

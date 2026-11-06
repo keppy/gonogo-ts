@@ -32,13 +32,34 @@ function outcomes(entries: Report[]): Map<string, boolean> {
   return out;
 }
 
+/** Grouped rows that were not folded (group rule "none"): one trial per row, keyed by (group, id). */
+function rowOutcomes(entries: Report[]): Map<string, boolean> {
+  const out = new Map<string, boolean>();
+  for (const { group, id, passed } of entries) {
+    if (id === undefined || id === null) throw new GonogoError("every case needs an id to pair on");
+    if (typeof passed !== "boolean") throw new GonogoError(`case ${repr(id)}: passed must be a boolean`);
+    const g = group === undefined || group === null ? null : str(group);
+    const key = JSON.stringify([g, str(id)]);
+    if (out.has(key)) {
+      const where = g === null ? "" : ` within group ${repr(g)}`;
+      throw new GonogoError(`duplicate case id ${repr(id)}${where}; ids must be unique to pair on`);
+    }
+    out.set(key, passed);
+  }
+  return out;
+}
+
 /** Fold a grouped run to one trial per group (all must pass), keeping membership. */
 function trialOutcomes(report: unknown): [Map<string, boolean>, Map<string, Set<string>> | null] {
   const entries = caseEntries(report) as Report[];
   const r = report as Report;
   const explicit = "n_groups" in r && r.n_groups !== null && r.n_groups !== undefined;
   const implicit = !("n_groups" in r) && entries.some((e) => e.group !== null && e.group !== undefined);
-  if (!(explicit || implicit)) return [outcomes(entries), null];
+  if (!(explicit || implicit)) {
+    // Grouped rows decided with group rule "none": ids repeat across groups by design.
+    if (entries.some((e) => e.group !== null && e.group !== undefined)) return [rowOutcomes(entries), null];
+    return [outcomes(entries), null];
+  }
   const passedByGroup = new Map<string, boolean>();
   const membership = new Map<string, Set<string>>();
   for (const { group, id, passed } of entries) {

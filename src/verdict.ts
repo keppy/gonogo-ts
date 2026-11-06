@@ -2,7 +2,7 @@
 // The ordering is the judgement: whole task first, then a confident subset,
 // then whether the sample is too small, then assist or not at all.
 
-import { fixed, percent } from "./py.ts";
+import { fmtCut, fmtShare, percent } from "./py.ts";
 import {
   bestOperatingPoint, expectedCalibrationError, intervalStr, requiredN, wilson,
   type Interval, type OperatingPoint, type Trial,
@@ -34,6 +34,7 @@ export interface Decision {
 
 export function decideTrials(
   results: Trial[], target = 0.95, level = 0.95, minCoverage = MIN_USEFUL_COVERAGE, unit = "cases",
+  calibrated: boolean | null = null,
 ): Decision {
   const base = { target, operatingPoint: null, calibrationError: NaN, neededN: null };
   const n = results.length;
@@ -46,10 +47,15 @@ export function decideTrials(
   const pct0 = (x: number) => percent(x, 0);
   const notes: string[] = [];
   const hasConfidence = new Set(results.map(([c]) => c)).size > 1;
-  const ece = hasConfidence ? expectedCalibrationError(results) : NaN;
+  // Distinct confidences rank cases either way; a calibration error needs the agent's own numbers.
+  const measuresCalibration = hasConfidence && calibrated !== false;
+  const ece = measuresCalibration ? expectedCalibrationError(results) : NaN;
   if (!hasConfidence) {
     notes.push("Every case reported the same confidence, so no abstention threshold "
       + "can be derived. Emit a real per-case confidence to unlock selective automation.");
+  } else if (!measuresCalibration) {
+    notes.push("No answered case reported its own confidence, so calibration is not measured; "
+      + "a threshold here can only separate answers from abstentions and errored cases.");
   }
   const common = { ...base, passRate: rate, calibrationError: ece, notes };
 
@@ -59,34 +65,39 @@ export function decideTrials(
   }
 
   if (hasConfidence) {
-    if (ece > ECE_UNUSABLE) {
-      notes.push(`Calibration error ${fixed(ece, 2)} exceeds ${fixed(ECE_UNUSABLE, 2)}: the confidence score `
+    if (measuresCalibration && ece > ECE_UNUSABLE) {
+      notes.push(`Calibration error ${fmtCut(ece)} exceeds ${fmtCut(ECE_UNUSABLE)}: the confidence score `
         + "ranks cases usefully but its scale is not a probability. Treat any threshold "
         + "below as an opaque cut point, and recalibrate before reading it as a percentage.");
     }
     const point = bestOperatingPoint(results, target, minCoverage, level);
     if (point !== null) {
-      notes.push(`The ${fixed(point.threshold, 2)} threshold was chosen by searching this same case `
+      notes.push(`The ${fmtCut(point.threshold)} threshold was chosen by searching this same case `
         + "set, so its precision is optimistically biased. Re-measure it on fresh cases "
         + "before relying on it.");
       return { ...common, verdict: VERDICTS.AUTOMATE_WITH_REVIEW, operatingPoint: point,
         reason: `overall pass rate ${rateS} misses the ${pct0(target)} target; `
-          + `a candidate threshold at confidence ${fixed(point.threshold, 2)} reaches `
-          + `${percent(point.precision.point, 1)} precision on ${pct0(point.coverage)} of ${unit} `
+          + `a candidate threshold at confidence ${fmtCut(point.threshold)} reaches `
+          + `${percent(point.precision.point, 1)} precision on ${fmtShare(point.coverage)} of ${unit} `
           + "on this selection set, but needs a fresh holdout before deployment" };
     }
     const near = bestOperatingPoint(results, target, 0.0, level);
     if (near !== null) {
-      notes.push(`A threshold of ${fixed(near.threshold, 2)} would hit the target but only covers `
-        + `${pct0(near.coverage)} of ${unit}, below the ${pct0(minCoverage)} floor.`);
+      notes.push(`A threshold of ${fmtCut(near.threshold)} would hit the target but only covers `
+        + `${fmtShare(near.coverage)} of ${unit}, below the ${pct0(minCoverage)} floor.`);
     }
   }
 
   if (rate.point >= target) {
     const needed = requiredN(rate.point, target, level);
-    return { ...common, verdict: VERDICTS.INSUFFICIENT_EVIDENCE, neededN: needed,
-      reason: `observed ${percent(rate.point, 1)} on ${n} ${unit} is above the ${pct0(target)} target, `
-        + `but the ${pct0(level)} interval reaches down to ${percent(rate.low, 1)}`,
+    // At exactly the target no sample size helps: a lower bound cannot clear a target the point only equals.
+    const reason = rate.point === target
+      ? `observed ${percent(rate.point, 1)} on ${n} ${unit} is at the ${pct0(target)} target, `
+        + `and the ${pct0(level)} interval reaches down to ${percent(rate.low, 1)}; a lower bound `
+        + `cannot clear a target the point only equals, so more ${unit} at this rate will not settle it`
+      : `observed ${percent(rate.point, 1)} on ${n} ${unit} is above the ${pct0(target)} target, `
+        + `but the ${pct0(level)} interval reaches down to ${percent(rate.low, 1)}`;
+    return { ...common, verdict: VERDICTS.INSUFFICIENT_EVIDENCE, neededN: needed, reason,
       notes: needed ? [...notes, `At this rate, about ${needed} ${unit} would be needed to claim `
         + `${pct0(target)}; you have ${n}.`] : notes };
   }

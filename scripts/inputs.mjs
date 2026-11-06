@@ -249,7 +249,7 @@ export const compareCases = [
   { name: "grouped-implicit", flags: [],
     a: { json: payload([["x", true, "g1"], ["y", false, "g1"], ["x", true, "g2"], ["y", true, "g2"]]) },
     b: { json: payload([["x", true, "g1"], ["y", true, "g1"], ["x", true, "g2"], ["y", true, "g2"]]) } },
-  { name: "refuse-ungrouped-decide-of-grouped-rows", flags: [],
+  { name: "ungrouped-decide-of-grouped-rows", flags: [],
     a: { rows: grouped(93, 5, 2, { failGroups: [0] }) }, b: { rows: grouped(93, 5, 2, {}) } },
 
   { name: "errored-side", flags: [],

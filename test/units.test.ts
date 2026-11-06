@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import { erfc, mcnemar } from "../src/compare.ts";
-import { fixed, percent } from "../src/py.ts";
+import { fixed, fmtCut, fmtShare, percent } from "../src/py.ts";
 import { requiredN, wilson, zFor } from "../src/stats.ts";
 import { assertClose } from "./close.ts";
 
@@ -32,6 +32,11 @@ test("McNemar, exact and chi-square", () => {
 
 test("erfc", () => {
   for (const [x, y] of units.erfc) assertClose(erfc(x), y, `erfc(${x})`);
+});
+
+test("gonogo's fmt_cut and fmt_share (0.4.6)", () => {
+  for (const [x, s] of units.fmt_cut) assert.equal(fmtCut(x), s, `fmt_cut(${x})`);
+  for (const [x, s] of units.fmt_share) assert.equal(fmtShare(x), s, `fmt_share(${x})`);
 });
 
 test("Python's fixed and percent formatting, ties to even", () => {

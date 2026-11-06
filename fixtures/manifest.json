@@ -1,8 +1,8 @@
 {
-  "gonogo": "gonogo-eval 0.4.5",
+  "gonogo": "gonogo-eval 0.4.6",
   "generator": "scripts/gen-fixtures.mjs over scripts/inputs.mjs (synthetic, seeded)",
   "decide": 73,
   "compare": 24,
   "files": 334,
-  "sha256": "0818c670d72d5a5d1d29355f6139b7f7a1c5f3bc1c29d563c8a7129f69c37c83"
+  "sha256": "581adc449f73afec75a17e4fe7ecc4288a37c29c032791f690dc6b5ba5f660de"
 }

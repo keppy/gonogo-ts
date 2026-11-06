@@ -39,6 +39,22 @@ export function percent(x: number, digits: number): string {
   return fixed(x * 100, digits) + "%";
 }
 
+/** gonogo's `stats.fmt_cut`: 2 to 4 places, the fewest that show `x` rounded to 4 (0.625, not 0.62). */
+export function fmtCut(x: number): string {
+  const target = Number(fixed(x, 4)); // Python's round(x, 4): the same correctly rounded decimal
+  for (const places of [2, 3]) {
+    const s = fixed(x, places);
+    if (Number(s) === target) return s;
+  }
+  return fixed(x, 4);
+}
+
+/** gonogo's `stats.fmt_share`: a percent, whole when it is whole, else one place (62.5%). */
+export function fmtShare(frac: number): string {
+  const pct = Number(fixed(frac * 100, 1));
+  return pct === Math.trunc(pct) ? percent(frac, 0) : percent(frac, 1);
+}
+
 /** Python's `repr(float)`: shortest round-trip digits, exponent outside 1e-4 .. 1e16. */
 export function floatRepr(x: number): string {
   if (Number.isNaN(x)) return "nan";
